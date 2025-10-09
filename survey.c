@@ -17,6 +17,7 @@
  */
 int tokenize_line(char *line, char words[][MAX_WORD_LEN], const char *delim);
 void print_line(char words[][MAX_WORD_LEN], int num_words);
+int get_option_index(char *answer, char options[][MAX_WORD_LEN], int num_options);
 
 /* loops over stdin lines */
 int main(int argc, char *argv[])
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
     char questions[MAX_QUESTIONS][MAX_WORD_LEN];
     char options[MAX_OPTIONS][MAX_WORD_LEN];
     char responses[MAX_RESPONDENTS][MAX_QUESTIONS][MAX_WORD_LEN];
-    
+    int freq[MAX_QUESTIONS][MAX_OPTIONS] = {0};
     char line[MAX_LINE_LEN];
 
     
@@ -73,7 +74,16 @@ int main(int argc, char *argv[])
                 num_respondents++;
                 break;
         }
-    }    
+    }
+    // function that counts how many respondents chose each option for each question
+    for (int r = 0; r < num_respondents; r ++){
+        for (int q = 0; q < num_questions; q++){
+            int index = get_option_index(responses[r][q], options, num_options);
+            if (index >= 0){
+                freq[q][index]++;
+            }
+        }
+    }
     printf("\nTotal respondents: %d\n", num_respondents);
     exit(0);
 }
@@ -99,4 +109,13 @@ int tokenize_line(char *line, char words[][MAX_WORD_LEN], const char *delim) {
         token = strtok(NULL, delim);
     } 
     return num_words;           
+}
+// function to find the index for which option number corresponds to the answer string
+int get_option_index(char *answer, char options[][MAX_WORD_LEN], int num_options){
+    for (int i = 0; i < num_options; i++){
+        if (strcmp(answer, options[i]) == 0){
+            return i;
+        }
+    }
+    return -1; // didnt find it
 }
