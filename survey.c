@@ -6,7 +6,7 @@
 /*
  * Compile-time constants
  */
-#define MAX_WORD_LEN 100
+#define MAX_WORD_LEN 200
 #define MAX_LINE_LEN 1024
 #define MAX_QUESTIONS 20
 #define MAX_OPTIONS 10
@@ -50,21 +50,21 @@ int main(int argc, char *argv[])
             case 1:
                 // case 1 is for the configuration bits
                 sscanf(line, "%d,%d" , &show_freq, &show_avg);
-                printf("Config: freq = %d, avg = %d\n", show_freq, show_avg);
+                //printf("Config: freq = %d, avg = %d\n", show_freq, show_avg);
                 phase++;
                 break;
 
             case 2:
                 // case 2 is for the questions (split by ;)
                 num_questions = tokenize_line(line,questions,";");
-                printf("Read %d questions. \n", num_questions);
+                //printf("Read %d questions. \n", num_questions);
                 phase++;
                 break;
 
             case 3:
                 // case 3 is for the answer options
                 num_options = tokenize_line(line,options,",");
-                printf("Read %d options. \n", num_options);
+                //printf("Read %d options. \n", num_options);
                 phase++;
                 break;
             
@@ -84,7 +84,39 @@ int main(int argc, char *argv[])
             }
         }
     }
-    printf("\nTotal respondents: %d\n", num_respondents);
+    //printf("\nTotal respondents: %d\n", num_respondents);
+    //printf("\nRelative frequencies\n");
+
+    // function to print the frequency and header
+    if (show_freq){
+        printf("ECS Student Survey\n");
+        printf("SURVEY RESPONSE STATISTICS\n\n");
+        printf("NUMBER OF RESPONDENTS: %d\n\n", num_respondents);
+        printf("#####\n");
+        printf("FOR EACH QUESTION/ASSERTION BELOW, RELATIVE PERCENTUAL FREQUENCIES ARE COMPUTED FOR EACH LEVEL OF AGREEMENT\n\n");
+
+        for (int q = 0; q < num_questions; q++){
+            printf("%d. %s\n", q + 1, questions[q]);
+            for (int o = 0; o < num_options; o++){
+                double percentage = 100.0 * freq[q][o] / num_respondents;
+                printf("%.2f: %s\n", percentage, options[o]);
+            }
+        if (q != num_questions-1 ) printf("\n");
+        }
+    }
+
+    // function to print the averages
+    if (show_avg){
+        printf("Average responses:\n");
+        for (int q = 0; q < num_questions; q++){
+            double sum = 0.0;
+            for (int o = 0; o < num_options; o++){
+                sum += (o + 1) * freq[q][o];
+            }
+            double avg = sum / num_respondents;
+            printf("Q%d average: %.2f\n" , q + 1, avg);
+        }
+    }
     exit(0);
 }
 
@@ -101,6 +133,7 @@ int tokenize_line(char *line, char words[][MAX_WORD_LEN], const char *delim) {
     /* for every token in line, store it */
     while (token && num_words < MAX_QUESTIONS) {
 
+        token[strcspn(token, "\r\n")] = '\0';
         strncpy(words[num_words], token, MAX_WORD_LEN-1);
         words[num_words][MAX_WORD_LEN-1] = '\0';
         num_words++;
@@ -110,6 +143,7 @@ int tokenize_line(char *line, char words[][MAX_WORD_LEN], const char *delim) {
     } 
     return num_words;           
 }
+
 // function to find the index for which option number corresponds to the answer string
 int get_option_index(char *answer, char options[][MAX_WORD_LEN], int num_options){
     for (int i = 0; i < num_options; i++){
