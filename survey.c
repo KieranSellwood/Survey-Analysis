@@ -1,4 +1,9 @@
 /* survey.c */
+/*
+Author: Kieran Sellwood
+Student Number: V01069864
+Date: October 8, 2025
+*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -86,12 +91,15 @@ int main(int argc, char *argv[])
     }
     //printf("\nTotal respondents: %d\n", num_respondents);
     //printf("\nRelative frequencies\n");
-
-    // function to print the frequency and header
-    if (show_freq){
+    if (show_avg || show_freq){
         printf("ECS Student Survey\n");
         printf("SURVEY RESPONSE STATISTICS\n\n");
         printf("NUMBER OF RESPONDENTS: %d\n\n", num_respondents);
+    }
+
+
+    // function to print the frequency
+    if (show_freq){
         printf("#####\n");
         printf("FOR EACH QUESTION/ASSERTION BELOW, RELATIVE PERCENTUAL FREQUENCIES ARE COMPUTED FOR EACH LEVEL OF AGREEMENT\n\n");
 
@@ -101,16 +109,16 @@ int main(int argc, char *argv[])
                 double percentage = 100.0 * freq[q][o] / num_respondents;
                 printf("%.2f: %s\n", percentage, options[o]);
             }
-        if (q != num_questions-1 ) printf("\n");
+        if (q != num_questions-1 ){
+             printf("\n");
+        }
         }
     }
 
     // function to print the averages
+    // checks if file says to show averages
     if (show_avg){
-        printf("ECS Student Survey\n");
-        printf("SURVEY RESPONSE STATISTICS\n\n");
-        printf("NUMBER OF RESPONDENTS: %d\n\n", num_respondents);
-        printf("#####\n");
+        printf("\n#####\n");
         printf("FOR EACH QUESTION/ASSERTION BELOW, THE AVERAGE RESPONSE IS SHOWN (FROM 1-DISAGREEMENT TO 4-AGREEMENT)\n\n");
         for (int q = 0; q < num_questions; q++){
             double sum = 0.0;
@@ -118,6 +126,7 @@ int main(int argc, char *argv[])
                 sum += (o + 1) * freq[q][o];
             }
             double avg = sum / num_respondents;
+
             printf("%d. %s - %.2f\n" , q + 1, questions[q], avg);
         }
     }
