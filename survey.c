@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
             printf("Read from the stdin instead\n");
             exit(1);
     }
-
-    int phase = 1;
+    /* Initialize variables for tracking input processing phase*/
+    int phase = 1;      
     int show_freq = 0;
     int show_avg = 0;
     int num_questions = 0;
@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     int num_respondents = 0;
     int num_words = 0;
     
+    /* Data storage arrays*/
     char questions[MAX_QUESTIONS][MAX_WORD_LEN];
     char options[MAX_OPTIONS][MAX_WORD_LEN];
     char responses[MAX_RESPONDENTS][MAX_QUESTIONS][MAX_WORD_LEN];
@@ -53,44 +54,43 @@ int main(int argc, char *argv[])
         if (line[0] == '#') continue;
         switch (phase){
             case 1:
-                // case 1 is for the configuration bits
+                /* case 1 is for the configuration bits */
                 sscanf(line, "%d,%d" , &show_freq, &show_avg);
-                //printf("Config: freq = %d, avg = %d\n", show_freq, show_avg);
                 phase++;
                 break;
 
             case 2:
-                // case 2 is for the questions (split by ;)
+                /* case 2 is for the questions (split by ;) */
                 num_questions = tokenize_line(line,questions,";");
-                //printf("Read %d questions. \n", num_questions);
                 phase++;
                 break;
 
             case 3:
-                // case 3 is for the answer options
+                /* case 3 is for the answer options*/
                 num_options = tokenize_line(line,options,",");
-                //printf("Read %d options. \n", num_options);
                 phase++;
                 break;
             
             case 4:
-                // case 4 is for the respondents answer
+                /* case 4 is for the respondents answer*/
+                /*Store each responents answer and increment counter*/
                 tokenize_line(line, responses[num_respondents],",");
                 num_respondents++;
                 break;
         }
     }
-    // function that counts how many respondents chose each option for each question
+    /* function that counts how many respondents chose each option for each question */
     for (int r = 0; r < num_respondents; r ++){
         for (int q = 0; q < num_questions; q++){
+            /* Finds the index of the answer option in the answer array */
             int index = get_option_index(responses[r][q], options, num_options);
             if (index >= 0){
                 freq[q][index]++;
             }
         }
     }
-    //printf("\nTotal respondents: %d\n", num_respondents);
-    //printf("\nRelative frequencies\n");
+    
+    /*function that produces the header if either bit is 1*/
     if (show_avg || show_freq){
         printf("ECS Student Survey\n");
         printf("SURVEY RESPONSE STATISTICS\n\n");
@@ -98,8 +98,9 @@ int main(int argc, char *argv[])
     }
 
 
-    // function to print the frequency
+    /* function to print the frequency if frequency bit is 1*/
     if (show_freq){
+        /* Frequency header*/
         printf("#####\n");
         printf("FOR EACH QUESTION/ASSERTION BELOW, RELATIVE PERCENTUAL FREQUENCIES ARE COMPUTED FOR EACH LEVEL OF AGREEMENT\n\n");
 
@@ -118,7 +119,12 @@ int main(int argc, char *argv[])
     // function to print the averages
     // checks if file says to show averages
     if (show_avg){
-        printf("\n#####\n");
+        if (show_freq){
+            printf("\n#####\n");
+        }else{
+            printf("#####\n");
+        }
+        
         printf("FOR EACH QUESTION/ASSERTION BELOW, THE AVERAGE RESPONSE IS SHOWN (FROM 1-DISAGREEMENT TO 4-AGREEMENT)\n\n");
         for (int q = 0; q < num_questions; q++){
             double sum = 0.0;
@@ -128,6 +134,7 @@ int main(int argc, char *argv[])
             double avg = sum / num_respondents;
 
             printf("%d. %s - %.2f\n" , q + 1, questions[q], avg);
+
         }
     }
     exit(0);
