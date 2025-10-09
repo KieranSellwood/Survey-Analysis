@@ -107,14 +107,18 @@ int main(int argc, char *argv[])
 
     // function to print the averages
     if (show_avg){
-        printf("Average responses:\n");
+        printf("ECS Student Survey\n");
+        printf("SURVEY RESPONSE STATISTICS\n\n");
+        printf("NUMBER OF RESPONDENTS: %d\n\n", num_respondents);
+        printf("#####\n");
+        printf("FOR EACH QUESTION/ASSERTION BELOW, THE AVERAGE RESPONSE IS SHOWN (FROM 1-DISAGREEMENT TO 4-AGREEMENT)\n\n");
         for (int q = 0; q < num_questions; q++){
             double sum = 0.0;
             for (int o = 0; o < num_options; o++){
                 sum += (o + 1) * freq[q][o];
             }
             double avg = sum / num_respondents;
-            printf("Q%d average: %.2f\n" , q + 1, avg);
+            printf("%d. %s - %.2f\n" , q + 1, questions[q], avg);
         }
     }
     exit(0);
